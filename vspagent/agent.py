@@ -53,14 +53,25 @@ class VSPAgent:
             model_name = "Qwen/Qwen2.5-0.5B-Instruct"
             
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-                device_map="auto"
-            )
+            
+            # Load model with GPU optimization
+            if torch.cuda.is_available():
+                # GPU: Use FP16 for 2x faster inference
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float16
+                ).cuda()
+                device_info = f"GPU (CUDA) - FP16 Optimized"
+            else:
+                # CPU: Use default precision
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float32
+                )
+                device_info = "CPU"
             
             print("✅ VSP Agent is ready!")
-            print(f"   🤖 Device: {'GPU' if torch.cuda.is_available() else 'CPU'}")
+            print(f"   🤖 Device: {device_info}")
             
         except Exception as e:
             print(f"❌ Error initializing AI: {e}")
@@ -71,23 +82,21 @@ class VSPAgent:
         if self.model is None:
             return "Please initialize AI first using init_ai()"
         
-        system_context = f"""You are VSP Agent, an AI assistant about {self.biodata['creator']}.
+        system_context = f"""You are an AI assistant answering questions about Vishnu Suresh Perumbavoor (VSP).
 
-IMPORTANT: VSP = The PERSON (Vishnu Suresh Perumbavoor), VSP Agent = YOU (the AI)
-
-VSP's Information:
+Key Facts:
 - Name: {self.biodata['creator']}
-- Founded: {', '.join(self.biodata['founder_of'])}
+- Marital Status: {self.biodata['marital_status']}
+- Education: {self.biodata['education']}
+- Founder: {', '.join(self.biodata['founder_of'])} (founded {self.biodata['created_on']})
+- Works at: {', '.join(self.biodata['corporate'])}
 - Roles: {', '.join(self.biodata['roles'])}
-- Technologies: {', '.join(self.biodata['technologies'])}
-- Accomplishments: {'; '.join(self.biodata['accomplishments'])}
-- LinkedIn: {self.biodata['socials']['linkedin']}
-- GitHub: {self.biodata['socials']['github']}
+- Tech Stack: {', '.join(self.biodata['technologies'][:6])}
+- Interests: {', '.join(self.biodata['interests'])}
+- Achievements: 3rd prize Vaiga Agrihack 2023, 1st prize startup presentation Palakkad
+- Social: LinkedIn, GitHub, YouTube, Twitter, Instagram
 
-RULES:
-1. NEVER say "I am..." for VSP's details
-2. ALWAYS say "He is...", "VSP is..."
-3. DO NOT make up information"""
+Answer concisely and naturally using "he/his" (third person). Only use facts above."""
 
         messages = [{"role": "system", "content": system_context}]
         
@@ -100,20 +109,22 @@ RULES:
             # Generate response
             inputs = self.tokenizer.apply_chat_template(
                 messages, 
-                return_tensors="pt"
+                return_tensors="pt",
+                add_generation_prompt=True
             ).to(self.model.device)
             
             outputs = self.model.generate(
                 inputs,
-                max_new_tokens=512,
+                max_new_tokens=256,
+                do_sample=True,
                 temperature=0.7,
-                do_sample=False
+                top_p=0.9,
+                pad_token_id=self.tokenizer.eos_token_id
             )
             
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            
-            # Extract just the assistant's response
-            response = response.split("assistant")[-1].strip()
+            # Decode only the new tokens (not the input)
+            generated_ids = outputs[0][inputs.shape[1]:]
+            response = self.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
             
             return response
             
