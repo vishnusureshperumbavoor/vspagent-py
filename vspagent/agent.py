@@ -1,7 +1,6 @@
 """VSP Agent - Core functionality"""
 
-import requests
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 # Biodata
 biodata = {
@@ -121,69 +120,4 @@ RULES:
         except Exception as e:
             return f"Error generating response: {e}"
     
-    def check_github(self, username: str = "vishnusureshperumbavoor") -> Dict:
-        """Check GitHub activity"""
-        try:
-            url = f"https://api.github.com/users/{username}/repos"
-            headers = {"Accept": "application/vnd.github.v3+json"}
-            
-            response = requests.get(url, headers=headers)
-            repos = response.json()
-            
-            total_stars = sum(repo.get('stargazers_count', 0) for repo in repos)
-            
-            return {
-                "username": username,
-                "total_repos": len(repos),
-                "total_stars": total_stars,
-                "recent_repos": [
-                    {
-                        "name": repo['name'],
-                        "stars": repo['stargazers_count'],
-                        "url": repo['html_url']
-                    }
-                    for repo in repos[:5]
-                ]
-            }
-        except Exception as e:
-            return {"error": str(e)}
-    
-    def search_jobs(self, role: str, location: str) -> Dict:
-        """Search LinkedIn jobs"""
-        from urllib.parse import urlencode
-        
-        params = {
-            "keywords": role,
-            "location": location,
-            "sortBy": "DD"
-        }
-        
-        search_url = f"https://www.linkedin.com/jobs/search?{urlencode(params)}"
-        
-        return {
-            "search_url": search_url,
-            "role": role,
-            "location": location,
-            "message": f"Visit {search_url} to see real job listings"
-        }
-    
-    def generate_cover_letter(self, job_title: str, company: str) -> str:
-        """Generate cover letter"""
-        return f"""Dear Hiring Manager at {company},
-
-I am writing to express my strong interest in the {job_title} position at {company}.
-
-With my background in {', '.join(self.biodata['technologies'][:5])}, I believe I would be a valuable addition to your team.
-
-Key qualifications:
-{chr(10).join(f'- {acc}' for acc in self.biodata['accomplishments'])}
-
-I am particularly drawn to {company}'s work and would welcome the opportunity to contribute.
-
-Thank you for considering my application.
-
-Best regards,
-{self.biodata['creator']}
-LinkedIn: {self.biodata['socials']['linkedin']}
-GitHub: {self.biodata['socials']['github']}"""
 

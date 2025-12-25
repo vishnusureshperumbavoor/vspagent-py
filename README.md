@@ -4,16 +4,16 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/vspagent.svg)](https://pypi.org/project/vspagent/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**AI-powered agent with information about Vishnu Suresh Perumbavoor. Powered by Qwen2.5-0.5B.**
+**AI-powered chat agent about Vishnu Suresh Perumbavoor. Powered by Qwen2.5-0.5B.**
 
 ## 🚀 Features
 
 - 🧠 **AI Chat**: Interactive conversations powered by Qwen2.5-0.5B language model
-- 📊 **GitHub Integration**: Check real-time GitHub statistics and repositories
-- 💼 **Job Search**: Search LinkedIn jobs by role and location
-- 📝 **Cover Letter Generator**: Automatically generate professional cover letters
+- 💬 **Natural Language**: Ask anything about VSP in plain English
+- 🧠 **Conversation Memory**: Maintains context throughout the chat session
+- ⚡ **GPU Acceleration**: Automatic GPU support for 30-50x faster responses
 - 🎯 **CLI Interface**: Easy-to-use command-line interface
-- 🐍 **Python API**: Programmatic access to all features
+- 🐍 **Python API**: Programmatic access for developers
 
 ## 📦 Installation
 
@@ -43,8 +43,8 @@ and YouTuber...
 💬 You: What technologies does he use?
 🤖 VSP Agent: He works with React, Node.js, FastAPI, Docker, MongoDB...
 
-💬 You: github
-📊 GitHub Stats: 30 repos, 45 stars
+💬 You: What has he accomplished?
+🤖 VSP Agent: He won 3rd prize in Vaiga Agrihack 2023...
 
 💬 You: exit
 👋 Thanks for chatting!
@@ -55,7 +55,7 @@ and YouTuber...
 - 💬 Natural language understanding
 - 🧠 Conversation memory (maintains context)
 - ⚡ GPU acceleration (30-50x faster if available)
-- 🔍 Special commands: `github`, `exit`
+- 🎯 Simple and focused on chatting about VSP
 
 **Note:** Command is `vspagent-py` (not `vspagent`) to avoid conflicts with the JavaScript version.
 
@@ -67,25 +67,20 @@ from vspagent import VSPAgent, biodata
 # Create agent instance
 agent = VSPAgent()
 
-# Initialize AI model
+# Initialize AI model (loads Qwen2.5-0.5B)
 agent.init_ai()
 
 # Chat with the agent
 response = agent.chat("Who is VSP?")
 print(response)
 
-# Check GitHub stats
-stats = agent.check_github()
-print(f"Total Repos: {stats['total_repos']}")
-print(f"Total Stars: {stats['total_stars']}")
+# Continue conversation with context
+conversation_history = []
+conversation_history.append({"role": "user", "content": "Who is VSP?"})
+conversation_history.append({"role": "assistant", "content": response})
 
-# Search for jobs
-jobs = agent.search_jobs("AI Engineer", "Kerala")
-print(jobs['search_url'])
-
-# Generate cover letter
-letter = agent.generate_cover_letter("AI Engineer", "Google")
-print(letter)
+response2 = agent.chat("What technologies does he use?", conversation_history)
+print(response2)
 
 # Access biodata directly
 print(biodata['creator'])
@@ -98,11 +93,11 @@ print(biodata['technologies'])
 
 #### Methods
 
-- **`init_ai()`**: Initialize the Qwen2.5-0.5B AI model
+- **`init_ai()`**: Initialize the Qwen2.5-0.5B AI model (required before chatting)
 - **`chat(message, conversation_history=None)`**: Chat with the AI agent
-- **`check_github(username="vishnusureshperumbavoor")`**: Get GitHub statistics
-- **`search_jobs(role, location)`**: Search LinkedIn jobs
-- **`generate_cover_letter(job_title, company)`**: Generate a cover letter
+  - `message` (str): Your question or message
+  - `conversation_history` (list, optional): Previous conversation for context
+  - Returns: AI-generated response as string
 
 ### `biodata` Dictionary
 
@@ -118,14 +113,14 @@ Contains comprehensive information about Vishnu Suresh Perumbavoor:
 - Python 3.8+
 - transformers >= 4.30.0
 - torch >= 2.0.0
-- requests >= 2.31.0
 
-## 🎨 CLI Commands
+## 🎨 Using the CLI
 
-When running in CLI mode:
-- Type your message to chat with the agent
-- Type `github` to check GitHub statistics
-- Type `exit` or `quit` to exit
+When running `vspagent-py`:
+- Simply type your questions or messages
+- The AI will respond with information about VSP
+- Type `exit` or `quit` to end the conversation
+- Conversation context is maintained throughout the session
 
 ## 👨‍💻 About VSP
 

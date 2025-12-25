@@ -8,7 +8,7 @@ setup(
     version="2.2.0",
     author="Vishnu Suresh Perumbavoor",
     author_email="vishnusureshperumbavoor@gmail.com",
-    description="AI-powered agent with information about Vishnu Suresh Perumbavoor. Powered by Qwen2.5-0.5B.",
+    description="AI-powered chat agent about Vishnu Suresh Perumbavoor. Powered by Qwen2.5-0.5B.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/vishnusureshperumbavoor/vsp_bot",
@@ -33,7 +33,6 @@ setup(
     install_requires=[
         "transformers>=4.30.0",
         "torch>=2.0.0",
-        "requests>=2.31.0",
     ],
     entry_points={
         "console_scripts": [

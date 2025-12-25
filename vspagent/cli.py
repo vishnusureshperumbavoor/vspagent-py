@@ -1,15 +1,24 @@
 """VSP Agent - CLI Interface"""
 
 import sys
+import io
 from .agent import VSPAgent
+
+# Fix Windows console encoding
+if sys.platform == 'win32':
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    except:
+        pass
 
 
 def main():
     """Main CLI entry point"""
-    print("╔════════════════════════════════════════════════════════════╗")
-    print("║          🤖  VSP Agent - Interactive Chat Mode            ║")
-    print("║              Powered by Qwen2.5-0.5B AI                   ║")
-    print("╚════════════════════════════════════════════════════════════╝")
+    print("=" * 62)
+    print("          🤖  VSP Agent - Interactive Chat Mode")
+    print("              Powered by Qwen2.5-0.5B AI")
+    print("=" * 62)
     print()
     
     agent = VSPAgent()
@@ -22,7 +31,7 @@ def main():
         return
     
     print("\n✅ VSP Agent is ready to chat!\n")
-    print("Commands: 'exit' to quit, 'github' to check GitHub stats\n")
+    print("Type 'exit' or 'quit' to end the conversation.\n")
     
     conversation_history = []
     
@@ -37,18 +46,7 @@ def main():
                 print("\n👋 Thanks for chatting with VSP Agent! Goodbye! 🚀\n")
                 break
             
-            if user_input.lower() == 'github':
-                print("\n🔍 Checking GitHub...")
-                stats = agent.check_github()
-                if 'error' in stats:
-                    print(f"❌ Error: {stats['error']}")
-                else:
-                    print(f"\n📊 GitHub Stats:")
-                    print(f"   Total Repos: {stats['total_repos']}")
-                    print(f"   Total Stars: {stats['total_stars']}\n")
-                continue
-            
-            # Get response
+            # Get AI response
             response = agent.chat(user_input, conversation_history)
             
             # Update history
